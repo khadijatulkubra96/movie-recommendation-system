@@ -4,7 +4,7 @@ import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# --- Helper Functions ---
+# --- Helper Function: Fetch Poster ---
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US"
     try:
@@ -16,9 +16,33 @@ def fetch_poster(movie_id):
     except:
         return "https://via.placeholder.com/500x750?text=No+Poster"
 
-# --- Page Layout ---
+# --- Page Layout & Styling ---
 st.set_page_config(page_title="Movie Lounge", layout="wide")
-st.markdown("<style>.stApp {background-color: #0e1117; color: white;}</style>", unsafe_allow_html=True)
+
+# CSS for Background Image and Centered Text
+st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                    url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+        background-size: cover;
+        background-attachment: fixed;
+        color: white;
+    }
+    .main-title {
+        font-size: 60px;
+        font-weight: bold;
+        text-align: center;
+        color: #E50914; /* Netflix Red */
+        margin-top: -50px;
+    }
+    .sub-title {
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 @st.cache_resource
 def load_data():
@@ -33,43 +57,43 @@ def load_data():
 
 movies, similarity = load_data()
 
-# --- UI Header ---
-st.title("🎬 Movie Lounge")
-st.write("AI-Powered Recommendations for Your Next Movie Night")
+# --- HERO SECTION ---
+st.markdown('<p class="main-title">🎬 Movie Lounge</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">AI-Powered Recommendations for Your Next Movie Night</p>', unsafe_allow_html=True)
 
-# --- SECTION 1: SEARCH & RECOMMEND ---
-selected_movie = st.selectbox("Search for a movie...", movies['title'].values)
+# --- SEARCH & RECOMMEND (Centered) ---
+col1, col2, col3 = st.columns([1,2,1])
+with col2:
+    selected_movie = st.selectbox("Search for a movie...", movies['title'].values)
+    btn_col1, btn_col2, btn_col3 = st.columns([1,1,1])
+    with btn_col2:
+        recommend_btn = st.button('Recommend')
 
-if st.button('Recommend'):
-    # Match using the actual title column to be safe
-    idx = movies[movies['title'] == selected_movie].index[0]
-    distances = sorted(list(enumerate(similarity[idx])), reverse=True, key=lambda x: x[1])
-    
-    st.write("---")
-    st.subheader(f"Recommendations for {selected_movie}")
-    cols = st.columns(5)
-    for i in range(1, 6):
-        movie_idx = distances[i][0]
-        with cols[i-1]:
-            st.image(fetch_poster(movies.iloc[movie_idx].id))
-            st.caption(movies.iloc[movie_idx].title)
+if recommend_btn:
+    movie_indices = movies[movies['title'] == selected_movie].index
+    if not movie_indices.empty:
+        idx = movies.index.get_loc(movie_indices[0])
+        distances = sorted(list(enumerate(similarity[idx])), reverse=True, key=lambda x: x[1])
+        
+        st.write("---")
+        st.subheader(f"Recommendations for {selected_movie}")
+        cols = st.columns(5)
+        for i in range(1, 6):
+            movie_idx = distances[i][0]
+            with cols[i-1]:
+                st.image(fetch_poster(movies.iloc[movie_idx].id))
+                st.caption(movies.iloc[movie_idx].title)
 
 st.write("---")
 
-# --- SECTION 2: TRENDING NOW ---
-st.subheader("🔥 Trending Now")
-trending = movies.sort_values(by='popularity', ascending=False).head(5)
-cols_trend = st.columns(5)
-for i in range(5):
-    with cols_trend[i]:
-        st.image(fetch_poster(trending.iloc[i].id))
-        st.caption(trending.iloc[i].title)
+# --- TRENDING & TOP RATED ---
+def display_row(title, data_frame):
+    st.subheader(title)
+    cols = st.columns(5)
+    for i in range(5):
+        with cols[i]:
+            st.image(fetch_poster(data_frame.iloc[i].id))
+            st.caption(data_frame.iloc[i].title)
 
-# --- SECTION 3: TOP CRITIC'S CHOICE ---
-st.subheader("⭐ Top Rated by Critics")
-top_rated = movies.sort_values(by='vote_average', ascending=False).head(5)
-cols_rate = st.columns(5)
-for i in range(5):
-    with cols_rate[i]:
-        st.image(fetch_poster(top_rated.iloc[i].id))
-        st.caption(f"{top_rated.iloc[i].title} ({top_rated.iloc[i].vote_average})")
+display_row("🔥 Trending Now", movies.sort_values(by='popularity', ascending=False).head(5))
+display_row("⭐ Top Rated by Critics", movies.sort_values(by='vote_average', ascending=False).head(5))
