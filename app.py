@@ -19,27 +19,55 @@ def fetch_poster(movie_id):
 # --- Page Layout & Styling ---
 st.set_page_config(page_title="Movie Lounge", layout="wide")
 
-# CSS for Background Image and Centered Text
+# CSS for Enhanced UI
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+        background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
                     url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
         background-size: cover;
         background-attachment: fixed;
-        color: white;
+        font-family: 'Inter', sans-serif;
     }
+    
+    /* Title Styling - Bada aur Center */
     .main-title {
-        font-size: 60px;
-        font-weight: bold;
+        font-size: 85px !important; /* Size barha diya */
+        font-weight: 800;
         text-align: center;
-        color: #E50914; /* Netflix Red */
-        margin-top: -50px;
+        color: #E50914; 
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        margin-top: -30px;
+        margin-bottom: 0px;
     }
+    
+    /* Subtitle Styling */
     .sub-title {
-        font-size: 20px;
+        font-size: 28px !important; /* Isay bhi bada kiya */
         text-align: center;
-        margin-bottom: 50px;
+        color: #ffffff;
+        font-weight: 300;
+        margin-bottom: 40px;
+    }
+
+    /* Movie Caption (Readability fix) */
+    .stCaption {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        background-color: rgba(0,0,0,0.6);
+        padding: 5px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    /* Selectbox Label Bada karne ke liye */
+    label {
+        font-size: 20px !important;
+        font-weight: bold !important;
+        color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
