@@ -30,6 +30,7 @@ def load_data():
     tfidf_matrix = tfidf.fit_transform(movies['tags'].fillna(''))
     sim = cosine_similarity(tfidf_matrix)
     return movies, sim
+movies, similarity = load_data()
 
 # --- SECTION 1: SEARCH & RECOMMEND ---
 selected_movie = st.selectbox("Search for a movie...", movies['title'].values)
